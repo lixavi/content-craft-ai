@@ -1,0 +1,60 @@
+﻿@inject NavigationManager nm
+
+@{
+    int choiceIndex = 0;
+
+}
+@foreach (var choice in QuestionsChoice[int.Parse(QuestionNo)].Choices)
+{
+    @if (choice == "freetext")
+    {
+        <input 
+       type="text"
+       name="@QuestionNo"
+       id="@choiceIndex"
+       @bind-value="@name" />
+        <button class="btn btn-sm btn-primary" @onclick="@(() => UpdateChoice(name))" >OK
+        </button>
+        <br />
+        choiceIndex++;
+    }
+    else
+    {
+
+
+
+        <input @onchange="@(() => UpdateChoice(choice))"
+       type="radio"
+       class="form-check-input"
+       name="@QuestionNo"
+       id="@choiceIndex"
+       autocomplete="off"
+       value="@choiceIndex"
+       checked="@(QuestionNo)" />
+        <label class="form-check-label" for="@choiceIndex">@choice</label>
+        <br />
+        choiceIndex++;
+    }
+
+}
+
+@code {
+
+    [Parameter]
+    public List<Hypnos.Data.HypnosQuestion>? QuestionsChoice { get; set; }
+    [Parameter]
+    public string? QuestionNo { get; set; }
+
+    [Parameter]
+    public EventCallback<string> SetChoice { get; set; }
+
+    protected async Task UpdateChoice(string choice)
+    {
+        await SetChoice.InvokeAsync(choice);
+        StateHasChanged();
+    }
+
+    public string? name { get; set; }
+
+
+}

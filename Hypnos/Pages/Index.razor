@@ -1,0 +1,25 @@
+﻿@page "/"
+
+@inject NavigationManager nm;
+
+<PageTitle>HYPNOS</PageTitle>
+<div class="box">
+    <div class="d-flex justify-content-center pt-5 ">
+        <div class="text-center">
+            <img src="images/logo.png" width="250" />
+            <p class="h5">
+                 Hello How are youComprehensive healthcare, from dusk until dawn<br />We help the world sleep Asas
+            </p>
+
+            <button class="btn btn-lg btn-primary" @onclick="login">Get Started</button>
+        </div>
+    </div>
+</div>
+@code {
+
+    void login()
+    {
+        nm.NavigateTo("registration");
+    }
+
+}

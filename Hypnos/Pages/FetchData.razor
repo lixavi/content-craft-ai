@@ -1,0 +1,212 @@
+﻿@page "/fetchdata/{cat}"
+
+<PageTitle>HYPNOS</PageTitle>
+@using Hypnos.Data
+@inject HypnosService QuizRepository
+@inject NavigationManager nm;
+@using System.Text;
+@inject IJSRuntime JS
+
+
+
+@if (quiz == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="container">
+
+        <div class="row">
+            <div class="col-md-8 offset-lg-2 mb-5">
+
+                <div style="margin-top:15%">
+                    <h4>@String.Join(" ", @cat.Split('_'))</h4>
+                    <div class="card border-primary">
+                        <div class="card-body shadow-sm p-3">
+                            <section>
+                                <h5 class="text-black-50 mb-4">
+                                    Question @(
+                                QuestionNo + 1
+                                )/@QuestionLength
+                                </h5>
+                                <p class="mb-3">@filteredList[QuestionNo].Question</p>
+                                <div class=" mb-4">
+                                    <Questions SetChoice="UpdateScore" QuestionsChoice="filteredList" QuestionNo="@(QuestionNo.ToString())"></Questions>
+                                </div>
+                                <p>
+                                    <span class="text-black-50">Your answer is</span> : <span class="text-success"> @SelectedChoice</span>
+                                </p>
+
+                                <div>
+                                    <button class="btn btn-primary me-2" @onclick="Back" disabled="@BackIsDisabled">Back</button>
+                                    <button @onclick="()=>UpdatePatentResponses(quiz[QuestionNo].Qno,quiz[QuestionNo].Question,SelectedChoice)" class="btn btn-primary btn-next" disabled="@NextIsDisabled">Next</button>
+                                    @if (Done)
+                                    {
+                                        <button onclick="@SubmitHTML" class="btn btn-success">Download file</button>
+
+                                        <style>
+                                            .btn-next {
+                                                display: none;
+                                            }
+                                        </style>
+
+                                    }
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+@*  <div class="col-md-12">
+        <table class="table table-bordered">
+            @foreach (var res in patientResponses)
+            {
+                <tr>
+                    <td>@res.qn</td>
+                    <td>@res.Question</td>
+                    <td>@res.Choices</td>
+
+                </tr>
+            }
+        </table>
+    </div>*@
+
+
+@code {
+
+    [Parameter]
+    public string cat { get; set; }
+    List<HypnosQuestion> filteredList { get; set; }
+    private List<HypnosQuestion>? quiz { get; set; }
+    private List<PatientResponses> patientResponses = new List<PatientResponses>();
+    string? IsChecked;
+    int QuestionNo = 0;
+    int QuestionLength;
+    int answer = 1;
+    bool BackIsDisabled = true;
+    bool NextIsDisabled = false;
+    bool Done = false;
+
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        quiz = await QuizRepository.GetQuestions();
+        filteredList = quiz.Where(x => x.Title == cat).ToList();
+
+        QuestionLength = filteredList.Count();
+
+
+
+    }
+
+    private string? SelectedChoice { get; set; }
+    void UpdateScore(string choice)
+    {
+        SelectedChoice = choice;
+
+    }
+
+    void UpdatePatentResponses(int qn, string question, string choice)
+    {
+        PatientResponses pr = new PatientResponses();
+        pr.qn = qn;
+        pr.Question = question;
+        pr.Choices = choice;
+        if (patientResponses.Any(item => item.qn == pr.qn))
+        {
+
+            patientResponses.Where(x => x.qn == pr.qn).ToList().ForEach(x => x.Choices = pr.Choices);
+            Next();
+        }
+        else
+        {
+            if (!string.IsNullOrEmpty(choice as string))
+            {
+                patientResponses.Add(pr);
+                Next();
+            }
+        }
+    }
+
+    private void Next()
+    {
+        SelectedChoice = "";
+        if (QuestionLength == answer)
+        {
+            Done = true;
+            NextIsDisabled = true;
+
+        }
+        else
+        {
+            answer++;
+            QuestionNo++;
+        }
+
+        IsButtonDisable();
+
+    }
+
+
+    private void Back()
+    {
+        QuestionNo--;
+        IsButtonDisable();
+
+
+    }
+
+    private void IsButtonDisable()
+    {
+        if (QuestionNo <= 0)
+        {
+            BackIsDisabled = true;
+        }
+        else
+
+            BackIsDisabled = false;
+    }
+
+    private async Task SubmitHTML()
+    {
+        var render = new IronPdf.ChromePdfRenderer();
+        var doc = render.RenderHtmlAsPdf(htmtable());
+        var fileName = "iron.pdf";
+        using var streamRef = new DotNetStreamReference(stream: doc.Stream);
+        await JS.InvokeVoidAsync("SubmitHTML", fileName, streamRef);
+    }
+
+    public string htmtable()
+    {
+        StringBuilder tableBuilder = new StringBuilder();
+        tableBuilder.Append("<table class='table table-striped'>");
+        tableBuilder.Append("<thead><tr><th>QNo.</th><th>Responses</th><th>Answers</th></tr></thead>");
+
+        tableBuilder.Append("<tbody>");
+        foreach (var res in patientResponses)
+        {
+            tableBuilder.Append("<tr>");
+            tableBuilder.Append($"<td>{res.qn}</td>");
+            tableBuilder.Append($"<td>{res.Question}</td>");
+            tableBuilder.Append($"<td>{res.Choices}</td>");
+            tableBuilder.Append("</tr>");
+        }
+        tableBuilder.Append("</tbody>");
+        tableBuilder.Append("</table>");
+        string tableHtml = tableBuilder.ToString();
+        return tableHtml;
+    }
+
+
+
+
+
+}
+
+

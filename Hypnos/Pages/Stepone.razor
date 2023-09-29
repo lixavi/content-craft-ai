@@ -1,0 +1,82 @@
+﻿@page "/st/{name}"
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-10 offset-1 mt-5">
+            <div class="alert alert-light" role="alert">
+                Hi! @name 
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-10 offset-1">
+            <div class="alert alert-light" role="alert">
+                <h5 class="text-center mb-4">I am concerned about the specific sleep related problem</h5>
+                <div class="row">
+                    <div class="col-md-3 text-center">
+
+                        <a href="fetchdata/Sleep_Apnea">
+                            <div>
+                                <img src="images/sleep_apnea.png" class="img-fluid" style="width:100px; height:100px; border-radius:100%" />
+                            </div>
+
+                        </a>
+                        <div><h6>Sleep Apnea</h6></div>
+                    </div>
+
+                    <div class="col-md-3 text-center">
+
+                        <a href="fetchdata/Tobacco">
+                            <img src="images/tabacco.png" style="width:100px; height:100px; border-radius:100%" />
+                        </a>
+                        <div><h6>Tobacco Cessation</h6></div>
+                    </div>
+
+                    <div class="col-md-3 text-center">
+
+                        <a href="fetchdata/Leg">
+                            <img src="images/leg_movements.png" style="width:100px; height:100px; border-radius:100%" />
+                        </a>
+                        <div><h6>Leg Movements</h6></div>
+                    </div>
+
+                    <div class="col-md-3 text-center">
+
+                        <a href="fetchdata/Sleepiness">
+                            <img src="images/excessive_sleepiness.png" style="width:100px; height:100px; border-radius:100%" />
+                        </a>
+                        <div><h6>Excessive Sleepiness</h6></div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-10 offset-1">
+            <div class="alert alert-danger" role="alert">
+                <h5>I am unsure if I may have a specific disorder, but i am trusted in seeking expert evaluation </h5>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+
+
+@code {
+
+    [Parameter]
+    public string? name { get; set; }
+    [Parameter]
+    public string? email { get; set; }
+    [Parameter]
+    public string? weight { get; set; }
+    [Parameter]
+    public string? height { get; set; }
+    [Parameter]
+    public string? gender { get; set; }
+}
