@@ -1,0 +1,5 @@
+DATA_FILE = "data/input_data.txt"
+MODEL_NAME = "t5-small"
+MAX_LENGTH = 100
+TEMPERATURE = 0.7
+NUM_RETURN_SEQUENCES = 1
